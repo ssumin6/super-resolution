@@ -21,6 +21,7 @@ class Trainer:
 
         self.now = None
         self.loss = loss
+        self.model = model
         self.checkpoint = tf.train.Checkpoint(step=tf.Variable(0),
                                               psnr=tf.Variable(-1.0),
                                               optimizer=Adam(learning_rate),
@@ -28,7 +29,6 @@ class Trainer:
         self.checkpoint_manager = tf.train.CheckpointManager(checkpoint=self.checkpoint,
                                                              directory=checkpoint_dir,
                                                              max_to_keep=3)
-
         self.restore()
 
     @property
@@ -97,8 +97,8 @@ class EdsrTrainer(Trainer):
     def __init__(self,
                  model,
                  checkpoint_dir,
-                 learning_rate=PiecewiseConstantDecay(boundaries=[200000], values=[1e-4, 5e-5])):
+                 learning_rate):
         super().__init__(model, loss=MeanAbsoluteError(), learning_rate=learning_rate, checkpoint_dir=checkpoint_dir)
 
-    def train(self, train_dataset, valid_dataset, steps=300000, evaluate_every=1000, save_best_only=True):
+    def train(self, train_dataset, valid_dataset, steps=200000, evaluate_every=10000, save_best_only=True):
         super().train(train_dataset, valid_dataset, steps, evaluate_every, save_best_only)
