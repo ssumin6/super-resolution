@@ -2,3 +2,4 @@
 .div2k
 .ckpt
 sftp-config.json
+*.pyc

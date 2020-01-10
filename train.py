@@ -1,6 +1,7 @@
 import os
 from model.edsr import edsr
-from train_module import EdsrTrainer
+from train_module import Trainer
+from data_video import video_ds
 
 # super resolution factor 
 scale = 4
@@ -10,24 +11,22 @@ depth = 20
 channels = 32
 
 
-def train(train_ds, valid_ds, weights_dir):
-	edsr = EdsrTrainer(model = edsr(scale = scale, num_res_blocks= depth, num_filters= channels), checkpoint_dir=f'.ckpt/edsr-{depth}-x{scale}', learning_rate = 1e-04)
+def train(train_ds, valid_ds):
+	model = Trainer(model = edsr(scale = scale, num_res_blocks= depth, num_filters= channels), learning_rate = 1e-04, checkpoint_dir=
+	'./ckpt')
 
-	edsr.train(train_ds,
-              valid_ds.take(10),
+	model.train(train_ds,
+              valid_ds,
               steps=200000, 
               evaluate_every=10000, 
               save_best_only=True)
-	edsr.restore()
-	edsr.model.save_weights(weights_file)
+	model.restore()
 
 if __name__ == '__main__':
-	# Location of model weights (needed for demo)
-	weights_dir = f'weights/edsr-{depth}-x{scale}'
-	weights_file = os.path.join(weights_dir, 'weights.h5')
+	#should change to different dataset.
+	video_train = video_ds(subset='train')
+	video_valid = video_ds(subset='valid')
 
-	os.makedirs(weights_dir, exist_ok=True)
-
-	train_ds = div2k_train.dataset(batch_size=64, random_transform=True)
-	valid_ds = div2k_valid.dataset(batch_size=1, random_transform=False, repeat_count=1)
+	train_ds = video_train.dataset(batch_size=64, random_transform=True)
+	valid_ds = video_valid.dataset(batch_size=1, random_transform=False, repeat_count=1)
 	train(train_ds, valid_ds)

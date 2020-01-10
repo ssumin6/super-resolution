@@ -1,27 +1,20 @@
-import time
+import timeit
 import tensorflow as tf
 
 from model import evaluate
 
-from tensorflow.keras.applications.vgg19 import preprocess_input
-from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.losses import MeanAbsoluteError
-from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.metrics import Mean
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
-
 
 class Trainer:
     def __init__(self,
                  model,
-                 loss,
                  learning_rate,
-                 checkpoint_dir='./ckpt/edsr'):
+                 checkpoint_dir='./ckpt'):
 
         self.now = None
-        self.loss = loss
-        self.model = model
+        self.loss = MeanAbsoluteError()
         self.checkpoint = tf.train.Checkpoint(step=tf.Variable(0),
                                               psnr=tf.Variable(-1.0),
                                               optimizer=Adam(learning_rate),
@@ -41,11 +34,11 @@ class Trainer:
         ckpt_mgr = self.checkpoint_manager
         ckpt = self.checkpoint
 
-        self.now = time.perf_counter()
+        self.now = timeit.timeit()
 
         for lr, hr in train_dataset.take(steps - ckpt.step.numpy()):
             ckpt.step.assign_add(1)
-            step = ckpt.step.numpy()
+            step = ckpt.step.numpy()    
 
             loss = self.train_step(lr, hr)
             loss_mean(loss)
@@ -57,18 +50,18 @@ class Trainer:
                 # Compute PSNR on validation dataset
                 psnr_value = self.evaluate(valid_dataset)
 
-                duration = time.perf_counter() - self.now
-                print(f'{step}/{steps}: loss = {loss_value.numpy():.3f}, PSNR = {psnr_value.numpy():3f} ({duration:.2f}s)')
+                duration = timeit.timeit() - self.now
+                print('%d/%d: loss = %.3f, PSNR = %3f (%.2fs)' %(step, steps, loss_value.numpy(),psnr_value.numpy(), duration))
 
                 if save_best_only and psnr_value <= ckpt.psnr:
-                    self.now = time.perf_counter()
+                    self.now = timeit.timeit()
                     # skip saving checkpoint, no PSNR improvement
                     continue
 
                 ckpt.psnr = psnr_value
                 ckpt_mgr.save()
 
-                self.now = time.perf_counter()
+                self.now = timeit.timeit()
 
     @tf.function
     def train_step(self, lr, hr):
@@ -90,15 +83,5 @@ class Trainer:
     def restore(self):
         if self.checkpoint_manager.latest_checkpoint:
             self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
-            print(f'Model restored from checkpoint at step {self.checkpoint.step.numpy()}.')
+            print('Model restored from checkpoint at step %d.' %self.checkpoint.step.numpy())
 
-
-class EdsrTrainer(Trainer):
-    def __init__(self,
-                 model,
-                 checkpoint_dir,
-                 learning_rate):
-        super().__init__(model, loss=MeanAbsoluteError(), learning_rate=learning_rate, checkpoint_dir=checkpoint_dir)
-
-    def train(self, train_dataset, valid_dataset, steps=200000, evaluate_every=10000, save_best_only=True):
-        super().train(train_dataset, valid_dataset, steps, evaluate_every, save_best_only)
