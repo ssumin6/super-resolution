@@ -6,16 +6,16 @@ from tensorflow.python.data.experimental import AUTOTUNE
 class video_ds:
     def __init__(self,
                  subset='train',
-                 lr_dir='../image_240',
-                 hr_dir='../image_960',
+                 lr_dir='../image_aug_240',
+                 hr_dir='../image_aug_960',
                  caches_dir='../caches'):
 
         self.scale = 4
 
         if subset == 'train':
-            self.image_ids = [i*30 for i in range(0,50)]
+            self.image_ids = [i for i in range(0,6720)]
         elif subset == 'valid':
-            self.image_ids = [i*30 for i in range(50,60)]
+            self.image_ids = [i for i in range(6720,8400)]
         else:
             raise ValueError("subset must be 'train' or 'valid'")
 
@@ -32,10 +32,12 @@ class video_ds:
 
     def dataset(self, batch_size=64, repeat_count=None, random_transform=True):
         ds = tf.data.Dataset.zip((self.lr_dataset(), self.hr_dataset()))
+        '''
         if random_transform:
             ds = ds.map(lambda lr, hr: random_crop(lr, hr, scale=self.scale), num_parallel_calls=AUTOTUNE)
             ds = ds.map(random_rotate, num_parallel_calls=AUTOTUNE)
             ds = ds.map(random_flip, num_parallel_calls=AUTOTUNE)
+        '''
         ds = ds.batch(batch_size)
         ds = ds.repeat(repeat_count)
         ds = ds.prefetch(buffer_size=AUTOTUNE)
@@ -61,11 +63,11 @@ class video_ds:
 
     def _hr_image_files(self):
         images_dir = self._hr_images_dir
-        return [os.path.join(images_dir, 'frame%04d.jpg' % image_id) for image_id in self.image_ids]
+        return [os.path.join(images_dir, 'frame%05d.jpg' % image_id) for image_id in self.image_ids]
 
     def _lr_image_files(self):
         images_dir = self._lr_images_dir
-        return [os.path.join(images_dir, 'frame%04d.jpg' %image_id) for image_id in self.image_ids]
+        return [os.path.join(images_dir, 'frame%05d.jpg' %image_id) for image_id in self.image_ids]
 
     @staticmethod
     def _images_dataset(image_files):
@@ -86,7 +88,7 @@ class video_ds:
 # -----------------------------------------------------------
 
 
-def random_crop(lr_img, hr_img, hr_crop_size=96, scale=2):
+def random_crop(lr_img, hr_img, hr_crop_size=64, scale=2):
     lr_crop_size = hr_crop_size // scale
     lr_img_shape = tf.shape(lr_img)[:2]
 

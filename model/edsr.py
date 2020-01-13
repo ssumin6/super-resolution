@@ -4,11 +4,11 @@ from tensorflow.python.keras.models import Model
 from model.common import normalize, denormalize, pixel_shuffle
 
 
-def edsr(scale, num_filters=64, num_res_blocks=8, res_block_scaling=0.1, kernel_size= 64):
+def edsr(scale, num_filters=32, num_res_blocks=8, res_block_scaling=0.1, kernel_size= 3):
     x_in = Input(shape=(None, None, 3))
-    x = Lambda(normalize)(x_in)
+    #x = Lambda(normalize)(x_in)
 
-    x = b = Conv2D(num_filters, kernel_size, padding='same')(x)
+    x = b = Conv2D(num_filters, kernel_size, padding='same')(x_in)
     for i in range(num_res_blocks):
         b = res_block(b, num_filters, res_block_scaling, kernel_size)
     b = Conv2D(num_filters, kernel_size, padding='same')(b)
@@ -17,7 +17,7 @@ def edsr(scale, num_filters=64, num_res_blocks=8, res_block_scaling=0.1, kernel_
     x = upsample(x, scale, num_filters, kernel_size)
     x = Conv2D(3, kernel_size, padding='same')(x)
 
-    x = Lambda(denormalize)(x)
+    #x = Lambda(denormalize)(x)
     return Model(x_in, x, name="edsr")
 
 

@@ -7,11 +7,13 @@ from tensorflow.keras.losses import MeanAbsoluteError
 from tensorflow.keras.metrics import Mean
 from tensorflow.keras.optimizers import Adam
 
+### should modify train, fit
+
 class Trainer:
     def __init__(self,
                  model,
                  learning_rate,
-                 checkpoint_dir='./ckpt'):
+                 checkpoint_dir='./ckpt/'):
 
         self.now = None
         self.loss = MeanAbsoluteError()
@@ -43,6 +45,10 @@ class Trainer:
             loss = self.train_step(lr, hr)
             loss_mean(loss)
 
+            #if step % 100 == 0:
+            #    print('step', step)
+            #    print(loss)
+
             if step % evaluate_every == 0:
                 loss_value = loss_mean.result()
                 loss_mean.reset_states()
@@ -72,8 +78,8 @@ class Trainer:
             sr = self.checkpoint.model(lr, training=True)
             loss_value = self.loss(hr, sr)
 
-        gradients = tape.gradient(loss_value, self.checkpoint.model.trainable_variables)
-        self.checkpoint.optimizer.apply_gradients(zip(gradients, self.checkpoint.model.trainable_variables))
+        gradients = tape.gradient(loss_value, self.checkpoint.model.trainable_weights)
+        self.checkpoint.optimizer.apply_gradients(zip(gradients, self.checkpoint.model.trainable_weights))
 
         return loss_value
 

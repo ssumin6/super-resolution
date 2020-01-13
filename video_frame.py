@@ -20,19 +20,19 @@ def capture(src_path):
 	    os.mkdir(save_dir)
 	 
 	while(cap.isOpened()):
-	    ret, image = cap.read()
+		ret, image = cap.read()
+		
+		if (not ret):
+			break
 
-	    if (not ret):
-	    	break
-
-	    if (count % fps == 0):
-		    file_name = "frame%04d.jpg" % count
-		    file_name = os.path.join(save_dir, file_name)
-		    
-		    cv2.imwrite(file_name, image)
-		    
-		    print('Saved %s' % file_name)
-	    count += 1
+		if (count % fps == 0):
+			file_name = "frame%04d.jpg" % count
+			file_name = os.path.join(save_dir, file_name)
+			
+			cv2.imwrite(file_name, image)
+			
+			print('Saved %s' % file_name)
+		count += 1
 	
 	cap.release()
 

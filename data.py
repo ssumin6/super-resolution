@@ -3,7 +3,6 @@ import tensorflow as tf
 
 from tensorflow.python.data.experimental import AUTOTUNE
 
-
 class DIV2K:
     def __init__(self,
                  scale=2,
