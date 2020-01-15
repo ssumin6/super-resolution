@@ -25,23 +25,6 @@ def train(train_ds, valid_ds, ckpt_dir):
 	model = Trainer(model = edsr(scale = scale, num_res_blocks= depth, num_filters= channels), learning_rate = 1e-04, checkpoint_dir=
 	'./ckpt/')
 
-	'''
-	model = edsr(scale = scale, num_res_blocks= depth, num_filters= channels)
-	model.compile(optimizer=Adam(learning_rate=1e-04),loss=MeanAbsoluteError(), metrics=[psnr, ssim])
-	model.summary()
-
-	
-	if (not os.path.exists(ckpt_dir)): 
-		os.makedirs(ckpt_dir)
-
-	ckpt_path = os.path.join(ckpt_dir, "latest.ckpt")
-
-	cp_callback = tf.keras.callbacks.ModelCheckpoint(ckpt_path,
-                                                 save_weights_only=True,
-                                                 verbose=1)
-
-	#model.fit(lr_train, hr_train, batch_size = 64, epochs = ,validation_split= 0.2, callbacks = [cp_callback])
-	'''
 	model.train(train_ds,
               valid_ds,
               steps=200000, 
