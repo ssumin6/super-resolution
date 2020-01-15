@@ -15,12 +15,6 @@ depth = 20
 # number of channel of conv blocks
 channels = 32
 
-def psnr(y_true, y_pred):
-	return tf.image.psnr(y_true, y_pred, max_val=255)
-
-def ssim(y_true, y_pred):
-	return tf.image.ssim(y_true, y_pred, max_val=255)
-
 def train(train_ds, valid_ds, ckpt_dir):
 	model = Trainer(model = edsr(scale = scale, num_res_blocks= depth, num_filters= channels), learning_rate = 1e-04, checkpoint_dir=
 	'./ckpt/')

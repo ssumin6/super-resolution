@@ -50,7 +50,7 @@ class Trainer:
                 loss_mean.reset_states()
 
                 # Compute PSNR on validation dataset
-                psnr_value = self.evaluate(valid_dataset)
+                psnr_value, ssim_value = self.evaluate(valid_dataset)
 
                 duration = timeit.timeit() - self.now
                 print('%d/%d: loss = %.3f, PSNR = %3f (%.2fs)' %(step, steps, loss_value.numpy(),psnr_value.numpy(), duration))
