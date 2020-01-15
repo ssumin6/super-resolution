@@ -45,10 +45,6 @@ class Trainer:
             loss = self.train_step(lr, hr)
             loss_mean(loss)
 
-            #if step % 100 == 0:
-            #    print('step', step)
-            #    print(loss)
-
             if step % evaluate_every == 0:
                 loss_value = loss_mean.result()
                 loss_mean.reset_states()
