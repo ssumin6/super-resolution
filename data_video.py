@@ -14,7 +14,7 @@ class video_ds:
         self.scale = 4
 
         if subset == 'train':
-            self.image_ids = [i for i in range(0,8400)]
+            self.image_ids = [i for i in range(0,13440)]
         elif subset == 'valid':
             self.image_ids = [i*30 for i in range(0,60)]
         else:

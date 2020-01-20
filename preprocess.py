@@ -72,6 +72,15 @@ def random(nImage):
 		flip = img.transpose(Image.FLIP_LEFT_RIGHT)
 		flip.save(os.path.join(lr_aug_dir, 'frame%05d.jpg' %cnt))
 		cnt += 1
+		flip = ro1.transpose(Image.FLIP_LEFT_RIGHT)
+		flip.save(os.path.join(lr_aug_dir, 'frame%05d.jpg' %cnt))
+		cnt += 1
+		flip = ro2.transpose(Image.FLIP_LEFT_RIGHT)
+		flip.save(os.path.join(lr_aug_dir, 'frame%05d.jpg' %cnt))
+		cnt += 1
+		flip = ro3.transpose(Image.FLIP_LEFT_RIGHT)
+		flip.save(os.path.join(lr_aug_dir, 'frame%05d.jpg' %cnt))
+		cnt += 1
 
 	cnt = nImage
 	for i in range(nImage):
@@ -87,6 +96,15 @@ def random(nImage):
 		ro3.save(os.path.join(hr_aug_dir, 'frame%05d.jpg' %cnt))
 		cnt += 1
 		flip = img.transpose(Image.FLIP_LEFT_RIGHT)
+		flip.save(os.path.join(hr_aug_dir, 'frame%05d.jpg' %cnt))
+		cnt += 1
+		flip = ro1.transpose(Image.FLIP_LEFT_RIGHT)
+		flip.save(os.path.join(hr_aug_dir, 'frame%05d.jpg' %cnt))
+		cnt += 1
+		flip = ro2.transpose(Image.FLIP_LEFT_RIGHT)
+		flip.save(os.path.join(hr_aug_dir, 'frame%05d.jpg' %cnt))
+		cnt += 1
+		flip = ro3.transpose(Image.FLIP_LEFT_RIGHT)
 		flip.save(os.path.join(hr_aug_dir, 'frame%05d.jpg' %cnt))
 		cnt += 1
 	print('cnt', cnt)
