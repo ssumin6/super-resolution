@@ -8,24 +8,24 @@ class video_ds:
                  subset='train',
                  lr_dir='../image_aug_240',
                  hr_dir='../image_aug_960',
-                 caches_dir='../caches'):
+                 lr_valid_dir = '../image_240',
+                 hr_valid_dir = '../image_960'):
 
         self.scale = 4
 
         if subset == 'train':
-            self.image_ids = [i for i in range(0,6720)]
+            self.image_ids = [i for i in range(0,8400)]
         elif subset == 'valid':
-            self.image_ids = [i for i in range(6720,8400)]
+            self.image_ids = [i*30 for i in range(0,60)]
         else:
             raise ValueError("subset must be 'train' or 'valid'")
 
         self.subset = subset
         self._lr_images_dir = lr_dir
         self._hr_images_dir = hr_dir
-        self.caches_dir = caches_dir
-
-        if (not os.path.exists(caches_dir)):
-            os.makedirs(caches_dir)
+        if self.subset == 'valid':
+            self._lr_images_dir = lr_valid_dir
+            self._hr_images_dir = hr_valid_dir
 
     def __len__(self):
         return len(self.image_ids)
@@ -47,10 +47,14 @@ class video_ds:
 
     def _hr_image_files(self):
         images_dir = self._hr_images_dir
+        if self.subset == 'valid':
+            return [os.path.join(images_dir, 'frame%04d.jpg' % image_id) for image_id in self.image_ids]
         return [os.path.join(images_dir, 'frame%05d.jpg' % image_id) for image_id in self.image_ids]
 
     def _lr_image_files(self):
         images_dir = self._lr_images_dir
+        if self.subset == 'valid':
+            return [os.path.join(images_dir, 'frame%04d.jpg' %image_id) for image_id in self.image_ids]
         return [os.path.join(images_dir, 'frame%05d.jpg' %image_id) for image_id in self.image_ids]
 
     @staticmethod
@@ -60,8 +64,4 @@ class video_ds:
         ds = ds.map(lambda x: tf.image.decode_png(x, channels=3), num_parallel_calls=AUTOTUNE)
         return ds
 
-    @staticmethod
-    def _populate_cache(ds, cache_file):
-        print('Caching decoded images in %s ...' % cache_file)
-        for _ in ds: pass
-        print('Cached decoded images in %s.' % cache_file)
+   

@@ -39,11 +39,9 @@ def test():
 	psnr, ssim = evaluate(checkpoint.model, valid_ds)
 	print('PSNR:%.3f, SSIM:%.3f' % (psnr, ssim))
 
-	lr = load_image('../image_aug_240/frame07163.jpg')
+	lr = load_image('../image_240/frame1500.jpg')
 	sr = resolve_single(checkpoint.model, lr)
 	plt.imshow(sr)
 	plt.show()
-	#sr.save("./images/sr.jpg")
-	#lr.save("./images/lr.jpg")
 
 test()

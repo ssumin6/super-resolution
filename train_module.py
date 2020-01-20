@@ -36,7 +36,7 @@ class Trainer:
         ckpt_mgr = self.checkpoint_manager
         ckpt = self.checkpoint
 
-        self.now = timeit.timeit()
+        self.now = timeit.default_timer()
 
         for lr, hr in train_dataset.take(steps - ckpt.step.numpy()):
             ckpt.step.assign_add(1)
@@ -52,7 +52,7 @@ class Trainer:
                 # Compute PSNR on validation dataset
                 psnr_value, ssim_value = self.evaluate(valid_dataset)
 
-                duration = timeit.timeit() - self.now
+                duration = timeit.default_timer() - self.now
                 print('%d/%d: loss = %.3f, PSNR = %3f (%.2fs)' %(step, steps, loss_value.numpy(),psnr_value.numpy(), duration))
 
                 if save_best_only and psnr_value <= ckpt.psnr:
