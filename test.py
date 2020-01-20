@@ -36,10 +36,10 @@ def test():
 	video_valid = video_ds(subset='valid')
 	valid_ds = video_valid.dataset(batch_size=1, random_transform=False, repeat_count=1)
 
-	psnr, ssim = evaluate(checkpoint.model, valid_ds, save=True)
+	psnr, ssim = evaluate(checkpoint.model, valid_ds)
 	print('PSNR:%.3f, SSIM:%.3f' % (psnr, ssim))
 
-	lr = load_image('../image_aug_240/frame08266.jpg')
+	lr = load_image('../image_aug_240/frame07163.jpg')
 	sr = resolve_single(checkpoint.model, lr)
 	plt.imshow(sr)
 	plt.show()

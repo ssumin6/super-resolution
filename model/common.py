@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-
+import timeit
 
 DIV2K_RGB_MEAN = np.array([0.4488, 0.4371, 0.4040]) * 255
 
@@ -21,12 +21,17 @@ def resolve(model, lr_batch):
 def evaluate(model, dataset):
     psnr_values = []
     ssim_values = []
+    inf_time = 0
     for lr, hr in dataset:
+        start = timeit.default_timer()
         sr = resolve(model, lr)
+        elapsed = timeit.default_timer()-start
+        inf_time += elapsed
         psnr_value = psnr(hr, sr)[0]
         ssim_value = ssim(hr, sr)[0]
         psnr_values.append(psnr_value)
         ssim_values.append(ssim_value)
+    print("inference time takes : %.5f" %inf_time)
     return tf.reduce_mean(psnr_values), tf.reduce_mean(ssim_values)
 
 
