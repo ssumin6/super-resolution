@@ -1,8 +1,9 @@
 import os
 import tensorflow as tf
-import cv2
+import numpy as np
+from PIL import Image
 
-from model import evaluate, resolve_single
+from model import evaluate, resolve_single, psnr, ssim
 from model.edsr import edsr
 from data_video import video_ds
 from utils import load_image
@@ -22,17 +23,23 @@ def restore(checkpoint, checkpoint_manager):
 		checkpoint.restore(checkpoint_manager.latest_checkpoint)
 		print('Model restored from checkpoint at step %d.' %checkpoint.step.numpy())
 
-def bilinear_upscale(valid_ds, scale):
+def bilinear_upscale(lr_dir, hr_dir, scale):
 	psnr_values = []
-    ssim_values = []
-    for lr, hr in dataset:
-        #bilinear upscale
-        sr = cv2.resize(lr, dsize=(lr.shape[0]*scale,lr.shape[1]*scale), interpolation=cv2.INTER_LINEAR)
-        psnr_value = psnr(hr, sr)[0]
-        ssim_value = ssim(hr, sr)[0]
+	ssim_values = []
+	ns = [i*30 for i in range(60)]
+	for index in ns:
+		#bilinear upscale
+		file_name = 'frame%04d.jpg' %index
+		lr = Image.open(os.path.join(lr_dir,file_name)).convert("RGB")
+		hr = Image.open(os.path.join(hr_dir,file_name)).convert("RGB")
+		sr = lr.resize((1704, 960), Image.BILINEAR)
+		hr = np.asanyarray(hr)
+		sr = np.asanyarray(sr)
+		psnr_value = psnr(hr, sr)
+        #ssim_value = ssim(hr, sr)
         psnr_values.append(psnr_value)
-        ssim_values.append(ssim_value)
-    return tf.reduce_mean(psnr_values), tf.reduce_mean(ssim_values)
+        #ssim_values.append(ssim_value)
+	return tf.reduce_mean(psnr_values) #, tf.reduce_mean(ssim_values)
 
 
 def test():
@@ -51,8 +58,9 @@ def test():
 
 	psnr, ssim = evaluate(checkpoint.model, valid_ds)
 	print('PSNR:%.3f, SSIM:%.3f' % (psnr, ssim))
-	psnr_b, ssim_b = bilinear_upscale(valid_ds, scale=scale)
-	print('bilinear upscale PSNR:%.3f, SSIM:%.3f' % (psnr_b, ssim_b))
+
+	psnr_b = bilinear_upscale('../image_240','../image_960',scale=scale)
+	print('bilinear upscale PSNR:%.3f' % psnr_b)
 
 	lr = load_image('../image_240/frame1500.jpg')
 	sr = resolve_single(checkpoint.model, lr)
